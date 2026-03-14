@@ -1,0 +1,26 @@
+services:
+  osint-tools:
+    build: .
+    container_name: osint-tools
+    restart: unless-stopped
+    environment:
+      - ABUSEIPDB_API_KEY=${ABUSEIPDB_API_KEY:-}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    networks:
+      - traefik_traefik-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.osint.rule=Host(`osint.townhouseagent.org`)"
+      - "traefik.http.routers.osint.entrypoints=websecure"
+      - "traefik.http.routers.osint.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.osint-chain.chain.middlewares=authelia@docker,cloudflare-headers@file"
+      - "traefik.http.routers.osint.middlewares=osint-chain"
+      - "traefik.http.services.osint.loadbalancer.server.port=3000"
+
+networks:
+  traefik_traefik-network:
+    external: true
