@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="30">
+    <title>Twitch Stats</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        h1 { font-size: 1.3rem; font-weight: 600; letter-spacing: 0.5px; }
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-weight: 600;
+        }
+        .live-on  { background: rgba(255,0,0,0.3); animation: pulse 2s infinite; }
+        .live-off { background: rgba(255,255,255,0.15); }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+        .live-dot { width:8px; height:8px; border-radius:50%; }
+        .dot-on  { background:#ff4444; }
+        .dot-off { background:#666; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .stat {
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 16px 12px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .stat-value { font-size:1.6rem; font-weight:700; margin-bottom:6px; display:block; line-height:1.2; }
+        .stat-label { font-size:0.7rem; opacity:0.85; text-transform:uppercase; letter-spacing:1px; font-weight:500; }
+        .timestamp { text-align:center; font-size:0.65rem; opacity:0.6; font-style:italic; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 Twitch Miner</h1>
+            <div class="live-badge live-on">
+                <span class="live-dot dot-on"></span>
+                <span>LIVE</span>
+            </div>
+        </div>
+        <div class="stats-grid">
+            <div class="stat">
+                <span class="stat-value">~53233</span>
+                <span class="stat-label">Points Earned</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value">2</span>
+                <span class="stat-label">👁️ Viewers</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value">53233</span>
+                <span class="stat-label">Minutes</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value">887.21h</span>
+                <span class="stat-label">Hours</span>
+            </div>
+        </div>
+        <div class="timestamp">Updated: 2026-03-14T04:15:00+00:00</div>
+    </div>
+</body>
+</html>

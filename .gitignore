@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated images
+*.png
+
+# ============================================
+# SECURITY: Never commit sensitive data
+# ============================================
+
+# Environment files (secrets injected at deploy time)
+.env
+*.env
+!.env.example
+
+# Authelia config (contains secrets, hashes, emails)
+infrastructure/authelia/config/configuration.yml
+infrastructure/authelia/config/users_database.yml
+infrastructure/authelia/config/db.sqlite3
+infrastructure/authelia/config/notification.txt
+
+# TLS / Certificates (private keys!)
+infrastructure/traefik/certs/acme.json
+*.pem
+*.key
+*.crt
+*.cert
+
+# Twitch Miner credentials and logs
+apps/twitch-miner/run.py
+apps/twitch-miner/cookies/
+apps/twitch-miner/logs/
+apps/twitch-miner/analytics/
+
+# Deploy logs
+deploy.log
+*.log
+
+# SpiderFoot database (may contain scan results)
+apps/spiderfoot/*.db
+apps/spiderfoot/spiderfoot.db

@@ -1,0 +1,102 @@
+---
+// src/components/ThreeDScroll.astro
+
+const images = [
+  { src: "/3d-scroll/img1.jpg", alt: "Architecture Dark" },
+  { src: "/3d-scroll/img2.jpg", alt: "Shadows Light" },
+  { src: "/3d-scroll/img3.jpg", alt: "Portrait High End" },
+  { src: "/3d-scroll/img4.jpg", alt: "Minimalist Landscape" },
+  { src: "/3d-scroll/img5.jpg", alt: "Foggy Forest" },
+];
+---
+
+<div id="scroll-container" class="relative h-[400vh] w-full"> 
+  <div class="sticky top-0 h-screen w-full overflow-hidden perspective-container bg-transparent">
+    
+    <div id="scene" class="absolute inset-0 w-full h-full transform-style-3d flex items-center justify-center">
+      
+      {images.map((img, index) => (
+        <div 
+            class="gallery-item absolute transform-style-3d will-change-transform flex items-center justify-center"
+            data-index={index}
+        >
+            <img 
+                src={img.src} 
+                alt={img.alt}
+                class="floating-animation max-w-[80vw] max-h-[70vh] w-auto h-auto object-contain rounded-lg shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] border border-white/5 grayscale hover:grayscale-0 transition-all duration-700 ease-out"
+            />
+        </div>
+      ))}
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .perspective-container {
+    perspective: 1000px;
+  }
+
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+
+  /* Svävande animation */
+  @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+  }
+
+  /* Vi sätter olika delay på animationen så alla bilder inte svävar i synk */
+  .floating-animation {
+      animation: float 6s ease-in-out infinite;
+  }
+  .gallery-item:nth-child(odd) .floating-animation {
+      animation-duration: 7s;
+      animation-delay: 1s;
+  }
+</style>
+
+<script>
+  const container = document.getElementById('scroll-container');
+  const scene = document.getElementById('scene');
+  const items = document.querySelectorAll('.gallery-item');
+
+  const Z_SPACING = 1500;
+  const START_Z = -500;
+
+  function updateScroll() {
+    if (!container || !scene) return;
+
+    const rect = container.getBoundingClientRect();
+    const scrollProgress = -rect.top; 
+
+    // Om vi inte scrollat in än, nollställ
+    if (scrollProgress < 0) return;
+
+    items.forEach((item, index) => {
+        let zPos = (scrollProgress * 1.5) - (index * Z_SPACING) + START_Z;
+
+        let opacity = 1;
+        
+        if (zPos > 500) {
+            opacity = 1 - ((zPos - 500) / 400);
+        }
+        if (zPos < -2000) {
+            opacity = 1 - (Math.abs(zPos + 2000) / 2000);
+        }
+        if (opacity < 0) opacity = 0;
+
+        (item as HTMLElement).style.transform = `translateZ(${zPos}px)`;
+        (item as HTMLElement).style.opacity = opacity.toString();
+    });
+
+    requestAnimationFrame(updateScroll);
+  }
+
+  window.addEventListener('scroll', () => {
+      requestAnimationFrame(updateScroll);
+  });
+  
+  updateScroll();
+</script>

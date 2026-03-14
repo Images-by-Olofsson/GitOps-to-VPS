@@ -1,0 +1,258 @@
+---
+// src/pages/index.astro
+import MainLayout from '../layouts/MainLayout.astro';
+import ThreeDScroll from '../components/ThreeDScroll.astro';
+import WaveBackground from '../components/WaveBackground.astro';
+---
+
+<MainLayout title="Home | Images by Olofsson">
+  
+  <div id="wave-wrapper" class="fixed inset-0 z-0 pointer-events-none transition-opacity duration-1000 ease-in-out" style="opacity: 0.4;">
+      <WaveBackground opacity="opacity-100" theme="cyan" />
+  </div>
+
+  <div id="hero-text" class="fixed top-0 left-0 w-full h-screen flex flex-col items-center justify-center z-10 pointer-events-none opacity-0 transition-all duration-700 ease-in-out">
+    
+    <div class="text-center animated-text-container relative">
+      
+      <div id="text-wrapper" class="inline-block relative p-6 transition-all duration-500">
+        
+        <h1 class="text-5xl md:text-8xl font-black text-white tracking-tighter leading-none drop-shadow-[0_0_10px_rgba(34,211,238,0.4)] relative z-10">
+            IMAGES BY <br/> OLOFSSON
+        </h1>
+
+        <svg class="absolute inset-0 w-full h-full z-0 overflow-visible pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <defs>
+                <filter id="fog-filter" x="-100%" y="-100%" width="300%" height="300%">
+                    <feGaussianBlur stdDeviation="15" result="blurredFog"/>
+                    <feComponentTransfer in="blurredFog">
+                        <feFuncA type="table" tableValues="0 0.1 0.3 1"/>
+                    </feComponentTransfer>
+                </filter>
+            </defs>
+            
+            <path id="outline-path" d="M 0,2 L 100,2 L 100,50 L 0,50 L 0,98 L 100,98" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+            
+            <use href="#outline-path" class="smoky-path" stroke-width="40" style="filter: url(#fog-filter); opacity: 0.6;" />
+        </svg>
+
+      </div>
+      
+      <p id="scroll-arrow" class="text-white/70 mt-6 text-lg font-light tracking-widest uppercase transition-opacity duration-300">↓</p>
+    </div>
+
+  </div>
+
+  <div id="images-container" class="relative z-20 transition-opacity duration-700 ease-in-out">
+      <ThreeDScroll />
+  </div>
+
+  <div id="footer-section" class="h-[50vh] flex items-center justify-center bg-neutral-900 z-30 relative border-t border-white/10">
+    
+    <div class="flex flex-col md:flex-row gap-12 md:gap-24 items-center text-center">
+      
+      <div class="flex flex-col items-center">
+        <h2 class="text-3xl md:text-4xl text-white font-bold mb-6">Looking for inspiration?</h2>
+        <a href="https://portfolio.imagesbyolofsson.se" class="inline-block px-8 py-3 bg-white text-black font-bold rounded-full hover:bg-gray-200 transition transform hover:scale-105">
+          My Portfolio
+        </a>
+      </div>
+
+      <div class="flex flex-row md:flex-col gap-6 items-center justify-center">
+        <a href="https://www.instagram.com/imagesbyolofsson/" target="_blank" rel="noopener noreferrer" class="circle-btn group" aria-label="Instagram">
+            <svg class="outline-ring" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="48" />
+            </svg>
+            <div class="icon-wrapper group-hover:text-pink-500">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                    <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/>
+                </svg>
+            </div>
+        </a>
+        <a href="https://lightroom.adobe.com/u/linusolofsson1" target="_blank" rel="noopener noreferrer" class="circle-btn group" aria-label="Lightroom">
+             <svg class="outline-ring" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="48" />
+            </svg>
+            <div class="icon-wrapper group-hover:text-cyan-400">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M4 4v16h11v-4H8V4H4zm13 4c-2.21 0-4 1.79-4 4v8h4v-7c0-1.1.9-2 2-2v-3h-2z"/></svg>
+            </div>
+        </a>
+      </div>
+
+      <div class="flex flex-col items-center">
+        <h2 class="text-3xl md:text-4xl text-white font-bold mb-6">Ready to collaborate?</h2>
+        <a href="https://contact.imagesbyolofsson.se" class="inline-block px-8 py-3 bg-white text-black font-bold rounded-full hover:bg-gray-200 transition transform hover:scale-105">
+          Contact me
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+</MainLayout>
+
+<style>
+    @reference "../styles/global.css";
+
+    /* --- RÖK-ANIMATIONEN --- */
+    .smoky-path {
+        stroke-dasharray: var(--length);
+        stroke-dashoffset: var(--length);
+        animation: drawPath 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    @keyframes drawPath {
+        0% { stroke-dashoffset: var(--length); opacity: 0; }
+        10% { opacity: 1; }
+        85% { stroke-dashoffset: 0; opacity: 1; }
+        100% { stroke-dashoffset: 0; opacity: 0; }
+    }
+    .smoky-path {
+        animation: drawPath 6s cubic-bezier(0.4, 0, 0.2, 1) infinite, smokeShift 10s ease-in-out infinite alternate;
+    }
+    @keyframes smokeShift {
+        0% { stroke: #374151; }
+        33% { stroke: #4b5563; }
+        66% { stroke: #334155; }
+        100% { stroke: #1f2937; }
+    }
+
+    /* --- BRACKETS (Hörnen) --- */
+    #text-wrapper::before,
+    #text-wrapper::after {
+        content: "";
+        position: absolute;
+        width: 63%;   
+        height: 40%;
+        border-color: #878681;
+        border-style: solid;
+        border-width: 0;
+        opacity: 0;   
+        transition: opacity 0.8s ease, transform 0.8s ease; 
+    }
+
+    /* Övre vänstra */
+    #text-wrapper::before {
+        top: 0;
+        left: 0;
+        border-top-width: 3px;
+        border-left-width: 3px;
+        transform: translate(-10px, -10px);
+    }
+
+    /* Nedre högra */
+    #text-wrapper::after {
+        bottom: 0;
+        right: 0;
+        border-bottom-width: 3px;
+        border-right-width: 3px;
+        transform: translate(10px, 10px);
+    }
+
+    /* --- KLASSEN SOM JS LÄGGER PÅ --- */
+    #text-wrapper.show-brackets::before,
+    #text-wrapper.show-brackets::after {
+        opacity: 1;
+        transform: translate(0, 0); 
+    }
+
+
+    /* --- FOOTER ICONER --- */
+    .circle-btn {
+        position: relative;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.03);
+        transition: all 0.3s ease;
+    }
+    .icon-wrapper { color: rgba(255, 255, 255, 0.6); transition: color 0.3s ease, transform 0.3s ease; z-index: 10; }
+    .circle-btn:hover .icon-wrapper { transform: scale(1.1); }
+    .outline-ring { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); pointer-events: none; }
+    .outline-ring circle { fill: none; stroke: white; stroke-width: 2; stroke-dasharray: 302; stroke-dashoffset: 302; transition: stroke-dashoffset 0.6s cubic-bezier(0.25, 1, 0.5, 1); opacity: 0.8; }
+    .circle-btn:hover .outline-ring circle { stroke-dashoffset: 0; }
+</style>
+
+<script>
+  // SVG Längd
+  const path = document.getElementById('outline-path') as unknown as SVGPathElement;
+  if (path) {
+    const length = path.getTotalLength();
+    path.closest('svg')?.style.setProperty('--length', length.toString());
+  }
+
+  const heroText = document.getElementById('hero-text');
+  const textWrapper = document.getElementById('text-wrapper'); 
+  const arrow = document.getElementById('scroll-arrow');
+  const smokyPath = document.querySelector('.smoky-path') as SVGElement;
+  const waveWrapper = document.getElementById('wave-wrapper'); // Hämta bakgrunden
+  
+  // LOGIK FÖR GRADVIS FADE BASERAT PÅ SCROLL
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    const windowHeight = window.innerHeight;
+    
+    if (arrow) {
+        arrow.style.opacity = scrollY > 50 ? '0' : '1';
+    }
+
+    if (heroText && !footerIsVisible) {
+        const fadeProgress = Math.min(scrollY / (windowHeight * 3), 1);
+        heroText.style.opacity = fadeProgress.toString();
+    }
+
+    if (scrollY > 2500) {
+        if (smokyPath) smokyPath.style.animationDuration = '4s'; 
+    } else {
+        if (smokyPath) smokyPath.style.animationDuration = '6s'; 
+    }
+  });
+
+
+  // FOOTER INTERAKTION
+  const footer = document.getElementById('footer-section');
+  const imagesContainer = document.getElementById('images-container');
+  let footerIsVisible = false;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        footerIsVisible = entry.isIntersecting;
+
+        if (entry.isIntersecting) {
+            // -- FOOTER SYNS --
+            if (imagesContainer) imagesContainer.style.opacity = '0';
+            if (heroText) {
+                heroText.style.opacity = '1';
+                heroText.style.transform = 'translateY(-25vh)';
+            }
+            
+            // Tänd Brackets
+            if (textWrapper) textWrapper.classList.add('show-brackets');
+
+            // HÖJ OPACITY TILL 90% (Hårdkodat via style)
+            if (waveWrapper) {
+                waveWrapper.style.opacity = '0.9';
+            }
+
+        } else {
+            // -- FOOTER SYNS INTE --
+            if (imagesContainer) imagesContainer.style.opacity = '1';
+            if (heroText) {
+                heroText.style.transform = 'translateY(0)';
+            }
+
+            // Släck Brackets
+            if (textWrapper) textWrapper.classList.remove('show-brackets');
+
+            // ÅTERSTÄLL OPACITY TILL 40% (Hårdkodat via style)
+            if (waveWrapper) {
+                waveWrapper.style.opacity = '0.4';
+            }
+        }
+    });
+  }, { threshold: 0.1 }); 
+
+  if (footer) observer.observe(footer);
+</script>

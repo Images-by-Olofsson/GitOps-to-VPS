@@ -1,0 +1,51 @@
+services:
+  twitch-miner:
+    image: rdavidoff/twitch-channel-points-miner-v2:latest
+    container_name: twitch-miner
+    restart: unless-stopped
+    volumes:
+      - ./run.py:/usr/src/app/run.py:ro
+      - ./analytics:/usr/src/app/analytics
+      - ./cookies:/usr/src/app/cookies
+      - ./logs:/usr/src/app/logs
+    networks:
+      - traefik_traefik-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0 if 'Send minute watched request' in open('/usr/src/app/logs/HungryBirdBot.log').read()[-10000:] else 1)"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  monitor:
+    image: python:3.10-alpine
+    container_name: twitch-miner-monitor
+    restart: unless-stopped
+    command: >
+      sh -c 'apk add --no-cache curl docker-cli &&
+             pip install colorama &&
+             cd /app &&
+             python monitor.py'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./monitor.py:/app/monitor.py:ro
+      - ./logs:/usr/src/app/logs:ro
+    working_dir: /app
+    networks:
+      - traefik_traefik-network
+    depends_on:
+      - twitch-miner
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 128M
+
+networks:
+  traefik_traefik-network:
+    external: true

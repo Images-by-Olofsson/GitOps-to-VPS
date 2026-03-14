@@ -1,0 +1,3 @@
+# Dependencies for validate_deploy.py
+# Note: The script uses only stdlib modules (json, subprocess, sys, os, datetime)
+# No external packages required at this time.

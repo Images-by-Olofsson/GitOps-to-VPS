@@ -1,0 +1,504 @@
+{
+  "timestamp": "2026-03-14T04:12:50.152683",
+  "services": {
+    "backend-db": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 3 hours",
+      "issues": [],
+      "config": {
+        "cpu": 1,
+        "memory": "536870912",
+        "public": false,
+        "routers": 0,
+        "domain": null
+      }
+    },
+    "dashboard": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 3 hours",
+      "issues": [],
+      "config": {
+        "cpu": 0.1,
+        "memory": "67108864",
+        "public": false,
+        "routers": 1,
+        "domain": "dashboard.townhouseagent.org"
+      }
+    },
+    "dashboard-updater": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 2 hours",
+      "issues": [],
+      "config": {
+        "cpu": 0.2,
+        "memory": "134217728",
+        "public": false,
+        "routers": 0,
+        "domain": null
+      }
+    },
+    "internal-tool": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 3 hours",
+      "issues": [],
+      "config": {
+        "cpu": 0.2,
+        "memory": "134217728",
+        "public": false,
+        "routers": 1,
+        "domain": "internal.townhouseagent.org"
+      }
+    },
+    "my-public-site": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 3 hours",
+      "issues": [],
+      "config": {
+        "cpu": 0.5,
+        "memory": "268435456",
+        "public": true,
+        "routers": 1,
+        "domain": "example.townhouseagent.org"
+      }
+    },
+    "authelia": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up About an hour (healthy)",
+      "issues": [],
+      "config": {
+        "cpu": 0.5,
+        "memory": "268435456",
+        "public": true,
+        "routers": 1,
+        "domain": "auth.townhouseagent.org"
+      }
+    },
+    "traefik": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up About an hour",
+      "issues": [],
+      "config": {
+        "cpu": 0.5,
+        "memory": "268435456",
+        "public": false,
+        "routers": 1,
+        "domain": "traefik.townhouseagent.org"
+      }
+    },
+    "backend": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 16 minutes",
+      "issues": [],
+      "config": {
+        "cpu": 0.2,
+        "memory": "268435456",
+        "public": false,
+        "routers": 0,
+        "domain": null
+      }
+    },
+    "nginx": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 16 minutes",
+      "issues": [],
+      "config": {
+        "cpu": 0.2,
+        "memory": "134217728",
+        "public": false,
+        "routers": 1,
+        "domain": "twitch-logs.townhouseagent.org"
+      }
+    },
+    "tailscale": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 16 minutes",
+      "issues": [],
+      "config": {
+        "cpu": 0.2,
+        "memory": "134217728",
+        "public": false,
+        "routers": 0,
+        "domain": null
+      }
+    },
+    "elasticsearch": {
+      "status": "healthy",
+      "runtime_state": "exited",
+      "runtime_status": "Exited (143) 5 minutes ago",
+      "issues": [],
+      "config": {
+        "cpu": 1,
+        "memory": "3221225472",
+        "public": false,
+        "routers": 0,
+        "domain": null
+      }
+    },
+    "logstash": {
+      "status": "healthy",
+      "runtime_state": "exited",
+      "runtime_status": "Exited (143) 5 minutes ago",
+      "issues": [],
+      "config": {
+        "cpu": 0.5,
+        "memory": "1610612736",
+        "public": false,
+        "routers": 0,
+        "domain": null
+      }
+    },
+    "monitor": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 15 minutes",
+      "issues": [],
+      "config": {
+        "cpu": 0.1,
+        "memory": "134217728",
+        "public": false,
+        "routers": 0,
+        "domain": null
+      }
+    },
+    "twitch-miner": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 15 minutes (healthy)",
+      "issues": [],
+      "config": {
+        "cpu": 0.5,
+        "memory": "536870912",
+        "public": false,
+        "routers": 0,
+        "domain": null
+      }
+    },
+    "grafana": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 25 minutes",
+      "issues": [],
+      "config": {
+        "cpu": 0.5,
+        "memory": "536870912",
+        "public": false,
+        "routers": 1,
+        "domain": "grafana.townhouseagent.org"
+      }
+    },
+    "nettools": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 29 minutes (healthy)",
+      "issues": [],
+      "config": {
+        "cpu": 0.5,
+        "memory": "536870912",
+        "public": false,
+        "routers": 1,
+        "domain": "nettools.townhouseagent.org"
+      }
+    },
+    "web-check": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up About an hour",
+      "issues": [],
+      "config": {
+        "cpu": 0.5,
+        "memory": "536870912",
+        "public": false,
+        "routers": 1,
+        "domain": "webcheck.townhouseagent.org"
+      }
+    },
+    "grafana-updater": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 14 minutes",
+      "issues": [],
+      "config": {
+        "cpu": 0.1,
+        "memory": "67108864",
+        "public": false,
+        "routers": 0,
+        "domain": null
+      }
+    },
+    "irc-fetcher": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 16 minutes",
+      "issues": [],
+      "config": {
+        "cpu": 0.2,
+        "memory": "134217728",
+        "public": false,
+        "routers": 0,
+        "domain": null
+      }
+    },
+    "log-updater": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 16 minutes",
+      "issues": [],
+      "config": {
+        "cpu": 0.1,
+        "memory": "67108864",
+        "public": false,
+        "routers": 0,
+        "domain": null
+      }
+    },
+    "stats-updater": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 16 minutes",
+      "issues": [],
+      "config": {
+        "cpu": 0.2,
+        "memory": "134217728",
+        "public": false,
+        "routers": 0,
+        "domain": null
+      }
+    },
+    "spiderfoot": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up About an hour",
+      "issues": [],
+      "config": {
+        "cpu": 0.5,
+        "memory": "536870912",
+        "public": false,
+        "routers": 1,
+        "domain": "spiderfoot.townhouseagent.org"
+      }
+    },
+    "homepage": {
+      "status": "healthy",
+      "runtime_state": "running",
+      "runtime_status": "Up 31 minutes (healthy)",
+      "issues": [],
+      "config": {
+        "cpu": 0.1,
+        "memory": "134217728",
+        "public": true,
+        "routers": 4,
+        "domain": "about.imagesbyolofsson.se"
+      }
+    }
+  },
+  "certificates": [],
+  "resources": {
+    "a33cf5941e0a_twitch-miner-monitor": {
+      "cpu_percent": 0.0,
+      "mem_usage": "37.67MiB",
+      "mem_limit": "128MiB",
+      "mem_percent": 29.43
+    },
+    "twitch-miner": {
+      "cpu_percent": 0.07,
+      "mem_usage": "46.26MiB",
+      "mem_limit": "512MiB",
+      "mem_percent": 9.03
+    },
+    "twitch-irc-fetcher": {
+      "cpu_percent": 0.0,
+      "mem_usage": "26.68MiB",
+      "mem_limit": "128MiB",
+      "mem_percent": 20.84
+    },
+    "twitch-logs-nginx": {
+      "cpu_percent": 0.0,
+      "mem_usage": "3.32MiB",
+      "mem_limit": "128MiB",
+      "mem_percent": 2.59
+    },
+    "twitch-log-updater": {
+      "cpu_percent": 1.86,
+      "mem_usage": "20.57MiB",
+      "mem_limit": "64MiB",
+      "mem_percent": 32.15
+    },
+    "twitch-stats-updater": {
+      "cpu_percent": 0.0,
+      "mem_usage": "2.426MiB",
+      "mem_limit": "128MiB",
+      "mem_percent": 1.9
+    },
+    "twitch-grafana-updater": {
+      "cpu_percent": 0.0,
+      "mem_usage": "21.65MiB",
+      "mem_limit": "64MiB",
+      "mem_percent": 33.83
+    },
+    "opnsense-dashboard-nginx": {
+      "cpu_percent": 0.0,
+      "mem_usage": "3.754MiB",
+      "mem_limit": "128MiB",
+      "mem_percent": 2.93
+    },
+    "opnsense-dashboard-backend": {
+      "cpu_percent": 0.12,
+      "mem_usage": "53.57MiB",
+      "mem_limit": "256MiB",
+      "mem_percent": 20.92
+    },
+    "opnsense-tailscale": {
+      "cpu_percent": 0.08,
+      "mem_usage": "26MiB",
+      "mem_limit": "128MiB",
+      "mem_percent": 20.31
+    },
+    "grafana": {
+      "cpu_percent": 0.04,
+      "mem_usage": "106MiB",
+      "mem_limit": "512MiB",
+      "mem_percent": 20.71
+    },
+    "nettools": {
+      "cpu_percent": 0.0,
+      "mem_usage": "35.8MiB",
+      "mem_limit": "512MiB",
+      "mem_percent": 6.99
+    },
+    "imagesbyolofsson-homepage": {
+      "cpu_percent": 0.0,
+      "mem_usage": "9.156MiB",
+      "mem_limit": "128MiB",
+      "mem_percent": 7.15
+    },
+    "web-check": {
+      "cpu_percent": 0.02,
+      "mem_usage": "154.9MiB",
+      "mem_limit": "512MiB",
+      "mem_percent": 30.24
+    },
+    "spiderfoot": {
+      "cpu_percent": 0.15,
+      "mem_usage": "86.39MiB",
+      "mem_limit": "512MiB",
+      "mem_percent": 16.87
+    },
+    "traefik": {
+      "cpu_percent": 0.0,
+      "mem_usage": "48.83MiB",
+      "mem_limit": "256MiB",
+      "mem_percent": 19.07
+    },
+    "authelia": {
+      "cpu_percent": 0.02,
+      "mem_usage": "41.41MiB",
+      "mem_limit": "256MiB",
+      "mem_percent": 16.17
+    },
+    "dashboard-updater": {
+      "cpu_percent": 0.36,
+      "mem_usage": "98.9MiB",
+      "mem_limit": "128MiB",
+      "mem_percent": 77.27
+    },
+    "public-site": {
+      "cpu_percent": 0.0,
+      "mem_usage": "3.336MiB",
+      "mem_limit": "256MiB",
+      "mem_percent": 1.3
+    },
+    "backend-db": {
+      "cpu_percent": 0.23,
+      "mem_usage": "5.082MiB",
+      "mem_limit": "512MiB",
+      "mem_percent": 0.99
+    },
+    "dashboard": {
+      "cpu_percent": 0.0,
+      "mem_usage": "3.711MiB",
+      "mem_limit": "64MiB",
+      "mem_percent": 5.8
+    },
+    "internal-tool": {
+      "cpu_percent": 0.0,
+      "mem_usage": "1.422MiB",
+      "mem_limit": "128MiB",
+      "mem_percent": 1.11
+    },
+    "mongodb-4-16od-mongodb4-1": {
+      "cpu_percent": 0.4,
+      "mem_usage": "72.26MiB",
+      "mem_limit": "7.751GiB",
+      "mem_percent": 0.91
+    },
+    "glances": {
+      "cpu_percent": 0.83,
+      "mem_usage": "74.96MiB",
+      "mem_limit": "7.751GiB",
+      "mem_percent": 0.94
+    }
+  },
+  "deploys": [
+    {
+      "timestamp": "20260314_014505",
+      "action": "DEPLOY",
+      "status": "SUCCESS"
+    },
+    {
+      "timestamp": "20260314_022601",
+      "action": "DEPLOY",
+      "status": "SUCCESS"
+    },
+    {
+      "timestamp": "20260314_023842",
+      "action": "DEPLOY",
+      "status": "SUCCESS"
+    },
+    {
+      "timestamp": "20260314_024501",
+      "action": "DEPLOY",
+      "status": "SUCCESS"
+    },
+    {
+      "timestamp": "20260314_025741",
+      "action": "DEPLOY",
+      "status": "SUCCESS"
+    },
+    {
+      "timestamp": "20260314_030327",
+      "action": "ROLLBACK",
+      "status": "SUCCESS"
+    },
+    {
+      "timestamp": "20260314_030756",
+      "action": "DEPLOY",
+      "status": "SUCCESS"
+    },
+    {
+      "timestamp": "20260314_030945",
+      "action": "ROLLBACK",
+      "status": "SUCCESS"
+    },
+    {
+      "timestamp": "20260314_033103",
+      "action": "ROLLBACK",
+      "status": "SUCCESS"
+    },
+    {
+      "timestamp": "20260314_034809",
+      "action": "ROLLBACK",
+      "status": "SUCCESS"
+    }
+  ],
+  "summary": "degraded"
+}

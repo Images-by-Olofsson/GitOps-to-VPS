@@ -1,0 +1,4 @@
+www/*.json
+www/*.txt
+www/logs.txt
+!www/favicon.svg

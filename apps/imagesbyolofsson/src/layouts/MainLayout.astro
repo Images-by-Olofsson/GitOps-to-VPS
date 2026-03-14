@@ -1,0 +1,37 @@
+---
+import "../styles/global.css";
+const { title } = Astro.props;
+---
+
+<html lang="sv" class="scroll-smooth"> <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+  </head>
+  <body class="bg-neutral-900 text-white font-sans antialiased min-h-screen flex flex-col">
+    
+    <nav class="fixed top-0 w-full z-50 border-b border-white/10 py-6 bg-neutral-900/80 backdrop-blur-md transition-all duration-300">
+      <div class="container mx-auto px-4 flex justify-between items-center">
+        
+        <a href="https://site.imagesbyolofsson.se" class="text-2xl font-bold tracking-wider uppercase hover:text-gray-300 transition relative z-50">
+          Images by Olofsson
+        </a>
+
+        <ul class="flex space-x-6 text-sm font-medium text-gray-400">
+          <li><a href="https://portfolio.imagesbyolofsson.se" class="hover:text-white transition">Portfolio</a></li>
+          <li><a href="https://about.imagesbyolofsson.se" class="hover:text-white transition">About</a></li>
+          <li><a href="https://contact.imagesbyolofsson.se" class="hover:text-white transition">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="flex-grow pt-24">
+      <slot /> 
+    </main>
+
+    <footer class="border-t border-neutral-800 py-8 text-center text-gray-500 text-sm bg-neutral-900 relative z-40">
+      <p>&copy; {new Date().getFullYear()} Images by Olofsson. All rights reserved.</p>
+    </footer>
+
+  </body>
+</html>

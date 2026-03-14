@@ -1,0 +1,124 @@
+version: '3.8'
+
+name: gitops-to-vps
+
+services:
+  # Example 1: Public Service (Public Website)
+  # - Must have custom.public=true to skip Authelia
+  # - Must have cloudflare-headers
+  # - Must use traefik_traefik-network
+  # - Must use letsencrypt resolver
+  # - Must have resource limits
+  my-public-site:
+    image: nginx:alpine
+    container_name: public-site
+    networks:
+      - traefik_traefik-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.public.rule=Host(`example.townhouseagent.org`)"
+      - "traefik.http.routers.public.entrypoints=websecure"
+      - "traefik.http.routers.public.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.public-mw.chain.middlewares=cloudflare-headers@file"
+      - "traefik.http.routers.public.middlewares=public-mw"
+      - "custom.public=true"
+
+  # Example 2: Internal Tool (Protected by Authelia)
+  # - No custom.public label -> Enforces Authelia middleware
+  # - Must have cloudflare-headers
+  # - Must have resource limits
+  internal-tool:
+    image: traefik/whoami
+    container_name: internal-tool
+    networks:
+      - traefik_traefik-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.internal.rule=Host(`internal.townhouseagent.org`)"
+      - "traefik.http.routers.internal.entrypoints=websecure"
+      - "traefik.http.routers.internal.tls.certresolver=letsencrypt"
+      # Must include authelia@docker
+      - "traefik.http.middlewares.internal-chain.chain.middlewares=authelia@docker,cloudflare-headers@file"
+      - "traefik.http.routers.internal.middlewares=internal-chain"
+
+  # Example 3: Backend Service (No external access)
+  # - No router defined -> Validation checks skipped for domain/auth
+  # - Must be on valid network (soc-network allowed)
+  # - Must have resource limits
+  backend-db:
+    image: redis:alpine
+    container_name: backend-db
+    networks:
+      - soc-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+    labels:
+      - "com.example.description=Backend Database"
+
+  # Dashboard (Static WebApp)
+  # - Protected by Authelia
+  dashboard:
+    image: nginx:alpine
+    container_name: dashboard
+    volumes:
+      - ./dashboard:/usr/share/nginx/html
+    networks:
+      - traefik_traefik-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 64M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`dashboard.townhouseagent.org`)"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.middlewares=internal-chain"
+      - "traefik.http.middlewares.internal-chain.chain.middlewares=authelia@docker,cloudflare-headers@file"
+
+  # Dashboard Updater (Background Worker)
+  # - Runs validation script loops to update JSON
+  dashboard-updater:
+    image: python:3.9-alpine
+    container_name: dashboard-updater
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/app
+    working_dir: /app
+    # Install docker-cli and run loop
+    command: >
+      sh -c "apk add --no-cache docker-cli docker-cli-compose &&
+             pip install --no-cache-dir -r requirements.txt 2>/dev/null || true &&
+             while true; do
+               python scripts/validate_deploy.py dashboard/data.json;
+               sleep 10;
+             done"
+    networks:
+      - soc-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+    labels:
+      - "com.example.description=Dashboard Data Updater"
+
+networks:
+  traefik_traefik-network:
+    external: true
+  soc-network:
+    external: true

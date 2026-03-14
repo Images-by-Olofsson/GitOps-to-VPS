@@ -1,0 +1,42 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: twitch-logs-nginx
+    restart: unless-stopped
+    volumes:
+      - ./www:/usr/share/nginx/html:ro
+    networks:
+      - traefik-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.twitch-logs.rule=Host(`twitch-logs.townhouseagent.org`)"
+      - "traefik.http.routers.twitch-logs.entrypoints=websecure"
+      - "traefik.http.routers.twitch-logs.tls=true"
+      - "traefik.http.routers.twitch-logs.tls.certresolver=cloudflare"
+      - "traefik.http.routers.twitch-logs.middlewares=authelia@docker"
+      - "traefik.http.services.twitch-logs.loadbalancer.server.port=80"
+
+  log-updater:
+    image: docker:cli
+    container_name: twitch-log-updater
+    restart: unless-stopped
+    command: sh -c "while true; do docker logs --tail 150 twitch-miner > /www/logs.txt 2>&1; sleep 5; done"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./www:/www
+
+  stats-updater:
+    image: alpine:latest
+    container_name: twitch-stats-updater
+    restart: unless-stopped
+    command: sh -c "while true; do MINUTE_REQUESTS=\$(grep -c  ' Send minute watched request '  /logs/HungryBirdBot.log 2>/dev/null || echo 0); echo \"{\\\"minute_requests\\\": \$MINUTE_REQUESTS, \\\"timestamp\\\": \\\"\$(date -Iseconds)\\\"}\" > /www/stats.json; sleep 30; done"
+    volumes:
+      - /opt/twitch-miner/logs:/logs:ro
+      - ./www:/www
+
+networks:
+  traefik-network:
+    external: true
+    name: traefik_traefik-network
+EOFCOMPOSE
+cd /opt/twitch-logs-nginx && docker-compose up -d

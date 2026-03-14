@@ -1,0 +1,322 @@
+---
+// src/pages/portfolio.astro
+import MainLayout from '../layouts/MainLayout.astro';
+import { Image } from 'astro:assets';
+import exifr from 'exifr';
+import fs from 'node:fs';
+import path from 'node:path';
+import WaveBackground from '../components/WaveBackground.astro';
+
+// --- SERVER-SIDE LOGIC ---
+
+// 1. Hämta alla bilder
+const imageFiles = import.meta.glob('../assets/images/portfolio/*.{jpeg,jpg,png,webp,JPG,JPEG,PNG}', { eager: true });
+
+function formatShutterSpeed(exposureTime: number) {
+  if (!exposureTime) return null;
+  if (exposureTime >= 1) return exposureTime.toString();
+  const fraction = Math.round(1 / exposureTime);
+  return `1/${fraction}`;
+}
+
+const galleryItems = await Promise.all(Object.entries(imageFiles).map(async ([relativePath, file]: [string, any]) => {
+  let exifData: any = {}; 
+  let dateTaken = null;
+  const absolutePath = path.resolve('./src/pages', relativePath);
+
+  try {
+    const fileBuffer = fs.readFileSync(absolutePath);
+    exifData = await exifr.parse(fileBuffer, [
+      'ISO', 'Model', 'FNumber', 'ExposureTime', 'FocalLength', 'DateTimeOriginal', 'CreateDate'
+    ]);
+    dateTaken = exifData?.DateTimeOriginal || exifData?.CreateDate;
+    if (!dateTaken) dateTaken = new Date(); 
+  } catch (e) {
+    console.error(`Kunde inte läsa EXIF för ${relativePath}`);
+    dateTaken = new Date(); 
+  }
+
+  const dateObj = new Date(dateTaken);
+  const year = dateObj.getFullYear().toString();
+  const month = dateObj.toLocaleString('sv-SE', { month: 'long' }).toLowerCase();
+  const monthIndex = dateObj.getMonth();
+  
+  const fullDate = dateObj.toLocaleDateString('sv-SE', { 
+    day: 'numeric', month: 'long', year: 'numeric' 
+  });
+
+  const shutterSpeed = formatShutterSpeed(exifData?.ExposureTime);
+  const focalLength = exifData?.FocalLength ? `${Math.round(exifData.FocalLength)}mm` : null;
+  const fStop = exifData?.FNumber ? `f/${exifData.FNumber}` : null;
+  const iso = exifData?.ISO ? `ISO ${exifData.ISO}` : null;
+
+  return {
+    ...file, year, month, monthIndex, fullDate, model: exifData?.Model,
+    fStop, shutterSpeed, iso, focalLength
+  };
+}));
+
+const uniqueYears = [...new Set(galleryItems.map((item: any) => item.year))].sort().reverse();
+const allMonths = galleryItems.map((item: any) => ({ name: item.month, index: item.monthIndex }));
+const uniqueMonths = [...new Map(allMonths.map(item => [item.name, item])).values()]
+  .sort((a: any, b: any) => a.index - b.index)
+  .map((item: any) => item.name);
+---
+
+<MainLayout title="Portfolio | Images by Olofsson">
+  
+  <div>
+    <WaveBackground opacity="opacity-55" />
+  </div>
+
+  <div class="container mx-auto px-4 py-12">
+    
+    <div class="text-center mb-12">
+      <h1 class="text-4xl md:text-6xl font-bold mb-4">Portfolio</h1>
+      <p class="text-gray-400">A curated selection of my work across different styles.</p>
+    </div>
+
+    <div class="flex flex-col items-center gap-6 mb-12">
+      <div class="flex flex-wrap justify-center gap-2">
+        <button class="filter-btn active" data-filter="all" data-type="year">Alla år</button>
+        {uniqueYears.map(year => (
+          <button class="filter-btn" data-filter={year} data-type="year">{year}</button>
+        ))}
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-2">
+        <button class="filter-btn active" data-filter="all" data-type="month">Alla månader</button>
+        {uniqueMonths.map(month => (
+          <button class="filter-btn capitalize" data-filter={month} data-type="month">{month}</button>
+        ))}
+      </div>
+    </div>
+
+    <div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6" id="gallery-grid">
+      {galleryItems.map((item: any) => (
+        <div 
+          class="gallery-item break-inside-avoid relative group overflow-hidden rounded-lg cursor-pointer bg-neutral-800 shadow-md"
+          data-year={item.year}
+          data-month={item.month}
+          data-src={item.default.src}
+          data-model={item.model}
+          data-iso={item.iso}
+          data-fstop={item.fStop}
+          data-shutter={item.shutterSpeed}
+          data-focal={item.focalLength}
+          data-date={item.fullDate}
+        >
+          <Image 
+            src={item.default} 
+            alt={`Foto taget med ${item.model}`}
+            width={800} 
+            class="w-full h-auto object-cover transform transition duration-700 group-hover:scale-105"
+          />
+          
+          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex flex-col justify-end p-6 pointer-events-none">
+            <p class="text-white font-bold text-lg">{item.fullDate}</p>
+            <p class="text-xs text-gray-400 uppercase tracking-widest mt-1">Visa bild</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div id="no-results" class="hidden text-center text-gray-500 mt-20">
+      <p class="text-xl">Inga bilder hittades för denna tidpunkt.</p>
+      <button id="reset-btn" class="mt-4 text-white underline hover:text-gray-300">Visa alla bilder</button>
+    </div>
+
+  </div>
+
+  <div id="lightbox" class="fixed inset-0 z-50 hidden bg-black/95 backdrop-blur-md flex items-center justify-center opacity-0 transition-opacity duration-300 p-2 md:p-8">
+    <div class="bg-neutral-900 w-full max-w-6xl h-[85vh] md:h-[90vh] flex flex-col rounded-xl overflow-hidden shadow-2xl relative border border-white/10">
+        
+        <button id="lb-close" class="absolute top-4 right-4 z-50 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+
+        <div class="flex-1 relative bg-black flex items-center justify-center overflow-hidden group">
+            <img id="lb-img" src="" alt="Full size" class="max-h-full max-w-full w-full h-full object-contain p-2 md:p-4" />
+            <button id="lb-prev" class="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-3 rounded-full transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <button id="lb-next" class="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-3 rounded-full transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+        </div>
+
+        <div class="bg-neutral-800 p-4 md:p-6 shrink-0 border-t border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="text-left">
+                <h3 id="lb-date" class="text-white font-bold text-lg md:text-xl capitalize"></h3>
+                <p id="lb-model" class="text-gray-400 text-sm font-medium tracking-wide mt-1"></p>
+            </div>
+            <div class="flex flex-wrap gap-3 md:gap-6 text-xs md:text-sm font-mono text-gray-300">
+                <div class="flex flex-col md:flex-row md:items-center gap-1"><span class="text-gray-500 uppercase text-[10px] font-bold">Focal</span><span id="lb-focal">--</span></div>
+                <div class="flex flex-col md:flex-row md:items-center gap-1"><span class="text-gray-500 uppercase text-[10px] font-bold">Aperture</span><span id="lb-fstop">--</span></div>
+                <div class="flex flex-col md:flex-row md:items-center gap-1"><span class="text-gray-500 uppercase text-[10px] font-bold">Shutter</span><span id="lb-shutter">--</span></div>
+                <div class="flex flex-col md:flex-row md:items-center gap-1"><span class="text-gray-500 uppercase text-[10px] font-bold">ISO</span><span id="lb-iso">--</span></div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+</MainLayout>
+
+<style>
+  @reference "../styles/global.css";
+
+  .filter-btn {
+    @apply px-4 py-1.5 rounded-full border border-white/10 bg-neutral-800/50 text-sm text-gray-400 transition hover:bg-white hover:text-black hover:border-white;
+  }
+  
+  .filter-btn.active {
+    @apply bg-white text-black border-white font-medium shadow-[0_0_15px_rgba(255,255,255,0.3)];
+  }
+</style>
+
+<script>
+  // --- FILTER LOGIK ---
+  let currentYear = 'all';
+  let currentMonth = 'all';
+  
+  const items = Array.from(document.querySelectorAll('.gallery-item')) as HTMLElement[];
+  const buttons = document.querySelectorAll('.filter-btn');
+  const noResults = document.getElementById('no-results');
+  const resetBtn = document.getElementById('reset-btn');
+
+  function filterImages() {
+    let visibleCount = 0;
+    items.forEach((el) => {
+      const itemYear = el.dataset.year;
+      const itemMonth = el.dataset.month;
+      const matchYear = currentYear === 'all' || itemYear === currentYear;
+      const matchMonth = currentMonth === 'all' || itemMonth === currentMonth;
+
+      if (matchYear && matchMonth) {
+        el.style.display = 'block';
+        el.classList.add('visible-item');
+        if(el.style.opacity === '0') {
+            el.animate([{ opacity: 0, transform: 'scale(0.95)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 300, easing: 'ease-out' });
+        }
+        visibleCount++;
+      } else {
+        el.style.display = 'none';
+        el.classList.remove('visible-item');
+      }
+    });
+    if (noResults) noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+  }
+
+  // --- LIGHTBOX LOGIK ---
+  const lightbox = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lb-img') as HTMLImageElement;
+  const lbDate = document.getElementById('lb-date');
+  const lbModel = document.getElementById('lb-model');
+  const lbFocal = document.getElementById('lb-focal');
+  const lbFstop = document.getElementById('lb-fstop');
+  const lbShutter = document.getElementById('lb-shutter');
+  const lbIso = document.getElementById('lb-iso');
+  const closeBtn = document.getElementById('lb-close');
+  const nextBtn = document.getElementById('lb-next');
+  const prevBtn = document.getElementById('lb-prev');
+
+  let currentImageIndex = 0;
+  let visibleItems: HTMLElement[] = []; 
+
+  function updateVisibleItems() {
+    visibleItems = items.filter(item => item.style.display !== 'none');
+  }
+
+  function openLightbox(index: number) {
+    updateVisibleItems();
+    if (visibleItems.length === 0) return;
+    currentImageIndex = index;
+    updateLightboxContent();
+    
+    lightbox?.classList.remove('hidden');
+    setTimeout(() => { lightbox?.classList.remove('opacity-0'); }, 10);
+    document.body.style.overflow = 'hidden'; 
+  }
+
+  function closeLightbox() {
+    lightbox?.classList.add('opacity-0');
+    setTimeout(() => {
+        lightbox?.classList.add('hidden');
+        document.body.style.overflow = '';
+    }, 300);
+  }
+
+  function updateLightboxContent() {
+    const item = visibleItems[currentImageIndex];
+    if (!item) return;
+
+    lbImg.src = item.dataset.src || '';
+    
+    if(lbDate) lbDate.innerText = item.dataset.date || '';
+    if(lbModel) lbModel.innerText = item.dataset.model || '';
+    if(lbFocal) lbFocal.innerText = item.dataset.focal || '--';
+    if(lbFstop) lbFstop.innerText = item.dataset.fstop || '--';
+    if(lbShutter) lbShutter.innerText = item.dataset.shutter ? item.dataset.shutter + 's' : '--';
+    if(lbIso) lbIso.innerText = item.dataset.iso || '--';
+  }
+
+  function showNext() {
+    currentImageIndex = (currentImageIndex + 1) % visibleItems.length;
+    updateLightboxContent();
+  }
+
+  function showPrev() {
+    currentImageIndex = (currentImageIndex - 1 + visibleItems.length) % visibleItems.length;
+    updateLightboxContent();
+  }
+
+  // Event Listeners
+  items.forEach((item) => {
+    item.classList.add('visible-item');
+    item.addEventListener('click', () => {
+        updateVisibleItems();
+        const index = visibleItems.indexOf(item);
+        if (index !== -1) openLightbox(index);
+    });
+  });
+
+  closeBtn?.addEventListener('click', closeLightbox);
+  nextBtn?.addEventListener('click', (e) => { e.stopPropagation(); showNext(); });
+  prevBtn?.addEventListener('click', (e) => { e.stopPropagation(); showPrev(); });
+  
+  lightbox?.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (lightbox?.classList.contains('hidden')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') showNext();
+    if (e.key === 'ArrowLeft') showPrev();
+  });
+
+  // Filter Listeners
+  buttons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const type = target.dataset.type;
+      const value = target.dataset.filter;
+      if (!type || !value) return;
+
+      document.querySelectorAll(`.filter-btn[data-type="${type}"]`).forEach(b => b.classList.remove('active'));
+      target.classList.add('active');
+      if (type === 'year') currentYear = value;
+      if (type === 'month') currentMonth = value;
+      filterImages();
+    });
+  });
+
+  resetBtn?.addEventListener('click', () => {
+    currentYear = 'all';
+    currentMonth = 'all';
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.filter-btn[data-filter="all"][data-type="year"]')?.classList.add('active');
+    document.querySelector('.filter-btn[data-filter="all"][data-type="month"]')?.classList.add('active');
+    filterImages();
+  });
+</script>

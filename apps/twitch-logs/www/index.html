@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Twitch Miner Logs</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="10">
+    <style>
+        body { 
+            background: #1a1a1a; 
+            color: #00ff00; 
+            font-family: "Courier New", monospace; 
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { color: #9146FF; margin-bottom: 20px; }
+        .info {
+            background: #2a2a2a;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            color: #00ddff;
+        }
+        #logs { 
+            background: #000; 
+            padding: 15px; 
+            border-radius: 5px;
+            height: 75vh;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        iframe {
+            width: 100%;
+            height: 75vh;
+            border: 2px solid #9146FF;
+            border-radius: 5px;
+            background: #000;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 Twitch Channel Points Miner - Live Logs</h1>
+    <div class="info">
+        📊 Auto-refreshes every 10 seconds | 📝 Last 150 lines | 🔄 <a href="?" style="color: #9146FF;">Manual Refresh</a>
+    </div>
+    <iframe src="logs.txt"></iframe>
+</body>
+</html>

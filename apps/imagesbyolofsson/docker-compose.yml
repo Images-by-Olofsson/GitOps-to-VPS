@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  homepage:
+    build: .
+    container_name: imagesbyolofsson-homepage
+    restart: unless-stopped
+    networks:
+      - traefik_traefik-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 128M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_traefik-network"
+      # Middleware definition
+      - "traefik.http.middlewares.cloudflare-headers.headers.sslproxyheaders.X-Forwarded-Proto=https"
+      # Site
+      - "traefik.http.routers.site-imagesbyolofsson.rule=Host(`site.imagesbyolofsson.se`)"
+      - "traefik.http.routers.site-imagesbyolofsson.entrypoints=websecure"
+      - "traefik.http.routers.site-imagesbyolofsson.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.site-imagesbyolofsson.middlewares=cloudflare-headers@file"
+      - "traefik.http.routers.site-imagesbyolofsson.service=imagesbyolofsson-service"
+      - "custom.public=true"
+      # Portfolio
+      - "traefik.http.routers.portfolio-imagesbyolofsson.rule=Host(`portfolio.imagesbyolofsson.se`)"
+      - "traefik.http.routers.portfolio-imagesbyolofsson.entrypoints=websecure"
+      - "traefik.http.routers.portfolio-imagesbyolofsson.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.portfolio-imagesbyolofsson.middlewares=cloudflare-headers@file"
+      - "traefik.http.routers.portfolio-imagesbyolofsson.service=imagesbyolofsson-service"
+      # About
+      - "traefik.http.routers.about-imagesbyolofsson.rule=Host(`about.imagesbyolofsson.se`)"
+      - "traefik.http.routers.about-imagesbyolofsson.entrypoints=websecure"
+      - "traefik.http.routers.about-imagesbyolofsson.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.about-imagesbyolofsson.middlewares=cloudflare-headers@file"
+      - "traefik.http.routers.about-imagesbyolofsson.service=imagesbyolofsson-service"
+      # Contact
+      - "traefik.http.routers.contact-imagesbyolofsson.rule=Host(`contact.imagesbyolofsson.se`)"
+      - "traefik.http.routers.contact-imagesbyolofsson.entrypoints=websecure"
+      - "traefik.http.routers.contact-imagesbyolofsson.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.contact-imagesbyolofsson.middlewares=cloudflare-headers@file"
+      - "traefik.http.routers.contact-imagesbyolofsson.service=imagesbyolofsson-service"
+      # Service
+      - "traefik.http.services.imagesbyolofsson-service.loadbalancer.server.port=80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  traefik_traefik-network:
+    external: true

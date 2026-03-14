@@ -1,0 +1,76 @@
+---
+// src/components/FloatingOrbs.astro
+
+// Vi skapar en array med 8 "orbs" (du kan ändra antalet här)
+const orbs = Array.from({ length: 8 });
+---
+
+<div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+  {orbs.map((_, i) => {
+      // Generera slumpmässiga värden för varje orb för variation
+      const top = Math.random() * 100;     // Position Y (0-100%)
+      const left = Math.random() * 100;    // Position X (0-100%)
+      // Storlek mellan ca 80px och 200px
+      const size = 80 + Math.random() * 120; 
+      // Animationstid mellan 15s och 35s (långsamt)
+      const duration = 15 + Math.random() * 20; 
+      // Negativ delay så de inte startar samtidigt
+      const delay = Math.random() * -30;
+      
+      // Slumpa mellan två animationstyper för mer liv
+      const animName = Math.random() > 0.5 ? 'float-1' : 'float-2';
+
+      return (
+          <div class="orb" style={{
+              '--top': `${top}%`,
+              '--left': `${left}%`,
+              '--size': `${size}px`,
+              '--duration': `${duration}s`,
+              '--delay': `${delay}s`,
+              '--anim-name': animName
+          }}></div>
+      );
+  })}
+</div>
+
+<style>
+  /* Referera till globala styles för att komma åt Tailwind-färger */
+  @reference "../styles/global.css";
+
+  .orb {
+    position: absolute;
+    top: var(--top);
+    left: var(--left);
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    
+    /* Färgen: Använder cyan-400 från Tailwind med låg opacitet */
+    background-color: theme('colors.cyan.400 / 0.2');
+    
+    /* Den viktigaste delen för "spök-looken": kraftig blur och glow */
+    filter: blur(30px);
+    box-shadow: 0 0 60px theme('colors.cyan.400 / 0.4');
+    
+    /* Animationen */
+    animation: var(--anim-name) var(--duration) ease-in-out infinite alternate var(--delay);
+    
+    /* Gör att de inte blockerar musklick */
+    pointer-events: none;
+    
+    /* Blandningsläge för snyggare effekt mot mörk bakgrund */
+    mix-blend-mode: screen;
+  }
+
+  /* Animation 1: Rör sig lite uppåt och vänster */
+  @keyframes float-1 {
+    0% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+    100% { transform: translate(-50px, -30px) scale(1.1); opacity: 0.7; }
+  }
+
+  /* Animation 2: Rör sig lite nedåt och höger */
+  @keyframes float-2 {
+    0% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+    100% { transform: translate(40px, 40px) scale(1.2); opacity: 0.6; }
+  }
+</style>

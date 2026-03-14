@@ -1,0 +1,5 @@
+logs/
+analytics/
+cookies/
+__pycache__/
+*.pyc

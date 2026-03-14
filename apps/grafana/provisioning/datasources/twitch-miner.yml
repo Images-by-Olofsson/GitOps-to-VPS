@@ -1,0 +1,9 @@
+apiVersion: 1
+
+datasources:
+  - name: Twitch Miner JSON
+    type: simple-json
+    access: proxy
+    url: https://twitch-logs.townhouseagent.org
+    jsonData:
+      tlsSkipVerify: true

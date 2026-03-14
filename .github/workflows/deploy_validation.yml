@@ -1,0 +1,177 @@
+name: Deployment Gatekeeper
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # ============================================
+  # JOB 1: Validate docker-compose configuration
+  # Runs on ALL triggers (push + PR)
+  # ============================================
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run Validation Agents
+        run: python scripts/validate_deploy.py --ci
+
+  # ============================================
+  # JOB 2: Deploy to VPS
+  # Runs ONLY on push to main (not PRs)
+  # Requires: validate to pass + secrets configured
+  # ============================================
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    outputs:
+      deployed: ${{ steps.deploy-step.outcome }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check secrets configured
+        id: check-secrets
+        run: |
+          if [ -z "${{ secrets.VPS_HOST }}" ] || [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then
+            echo "configured=false" >> $GITHUB_OUTPUT
+            echo "⚠️ VPS secrets not configured - skipping deploy"
+          else
+            echo "configured=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Copy files to VPS
+        if: steps.check-secrets.outputs.configured == 'true'
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "docker-compose.yml,scripts/,dashboard/,infrastructure/,apps/"
+          target: ${{ secrets.VPS_DEPLOY_PATH }}
+
+      - name: Deploy on VPS
+        id: deploy-step
+        if: steps.check-secrets.outputs.configured == 'true'
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          CF_API_EMAIL: ${{ secrets.CF_API_EMAIL }}
+          CF_DNS_API_TOKEN: ${{ secrets.CF_DNS_API_TOKEN }}
+          GF_ADMIN_PASSWORD: ${{ secrets.GF_ADMIN_PASSWORD }}
+          OPNSENSE_HOST: ${{ secrets.OPNSENSE_HOST }}
+          OPNSENSE_API_KEY: ${{ secrets.OPNSENSE_API_KEY }}
+          OPNSENSE_API_SECRET: ${{ secrets.OPNSENSE_API_SECRET }}
+          TS_AUTHKEY: ${{ secrets.TS_AUTHKEY }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          timeout: 120s
+          envs: CF_API_EMAIL,CF_DNS_API_TOKEN,GF_ADMIN_PASSWORD,OPNSENSE_HOST,OPNSENSE_API_KEY,OPNSENSE_API_SECRET,TS_AUTHKEY
+          script: |
+            chmod +x ${{ secrets.VPS_DEPLOY_PATH }}/scripts/deploy.sh
+            ${{ secrets.VPS_DEPLOY_PATH }}/scripts/deploy.sh ${{ secrets.VPS_DEPLOY_PATH }}
+
+  # ============================================
+  # JOB 3: Health Check
+  # Waits 30s, then verifies containers are running
+  # ============================================
+  health-check:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Check secrets configured
+        id: check-secrets
+        run: |
+          if [ -z "${{ secrets.VPS_HOST }}" ] || [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then
+            echo "configured=false" >> $GITHUB_OUTPUT
+            echo "⚠️ VPS secrets not configured - skipping health check"
+          else
+            echo "configured=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Wait for containers to stabilize
+        if: steps.check-secrets.outputs.configured == 'true'
+        run: |
+          echo "Waiting 60 seconds for containers to start..."
+          sleep 60
+
+      - name: Verify container health
+        if: steps.check-secrets.outputs.configured == 'true'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          timeout: 120s
+          script: |
+            cd ${{ secrets.VPS_DEPLOY_PATH }}
+            echo "=== Container Status ==="
+            docker compose ps
+
+            # Check if any container is NOT running (excluding expected one-shot containers)
+            UNHEALTHY=$(docker compose ps --format json | python3 -c "
+            import sys, json
+            data = []
+            for line in sys.stdin:
+                line = line.strip()
+                if line:
+                    try:
+                        parsed = json.loads(line)
+                        if isinstance(parsed, list):
+                            data.extend(parsed)
+                        else:
+                            data.append(parsed)
+                    except ValueError:
+                        pass
+            failed = [c.get('Service', c.get('Name', 'unknown')) for c in data if c.get('State','').lower() not in ['running','restarting']]
+            if failed:
+                print('UNHEALTHY: ' + ', '.join(failed))
+                sys.exit(1)
+            else:
+                print('All containers healthy')
+            ")
+
+  # ============================================
+  # JOB 4: Rollback (only if health-check fails)
+  # ============================================
+  rollback:
+    needs: health-check
+    runs-on: ubuntu-latest
+    if: failure() && github.event_name == 'push'
+    steps:
+      - name: Check secrets configured
+        id: check-secrets
+        run: |
+          if [ -z "${{ secrets.VPS_HOST }}" ] || [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then
+            echo "configured=false" >> $GITHUB_OUTPUT
+            echo "⚠️ VPS secrets not configured - skipping rollback"
+          else
+            echo "configured=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Rollback on VPS
+        if: steps.check-secrets.outputs.configured == 'true'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          timeout: 120s
+          script: |
+            chmod +x ${{ secrets.VPS_DEPLOY_PATH }}/scripts/rollback.sh
+            ${{ secrets.VPS_DEPLOY_PATH }}/scripts/rollback.sh ${{ secrets.VPS_DEPLOY_PATH }}

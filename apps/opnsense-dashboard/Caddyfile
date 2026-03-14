@@ -1,0 +1,8 @@
+hunter.townhouseagent.prg {
+    reverse_proxy opnsense-dashboard-nginx:80
+}
+
+# Fallback for IP access
+:9090 {
+    reverse_proxy opnsense-dashboard-nginx:80
+}

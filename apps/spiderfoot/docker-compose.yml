@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  spiderfoot:
+    build: .
+    container_name: spiderfoot
+    restart: unless-stopped
+    volumes:
+      - ./data:/var/lib/spiderfoot
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.spiderfoot.rule=Host(`spiderfoot.townhouseagent.org`)"
+      - "traefik.http.routers.spiderfoot.entrypoints=websecure"
+      - "traefik.http.routers.spiderfoot.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.spiderfoot.middlewares=authelia@docker,cloudflare-headers@file"
+      - "traefik.http.services.spiderfoot.loadbalancer.server.port=5001"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - traefik_traefik-network
+
+networks:
+  traefik_traefik-network:
+    external: true

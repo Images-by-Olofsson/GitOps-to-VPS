@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: opnsense-dashboard-nginx
+    volumes:
+      - ./dashboard:/usr/share/nginx/html/opnsense-security
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 128M
+    networks:
+      - traefik_traefik-network
+      - opnsense-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.opnsense-dashboard.rule=Host(`hunter.townhouseagent.org`)"
+      - "traefik.http.routers.opnsense-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.opnsense-dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.opnsense-dashboard.middlewares=authelia@docker,cloudflare-headers@file"
+      - "traefik.http.services.opnsense-dashboard.loadbalancer.server.port=80"
+
+  backend:
+    build: ./backend
+    container_name: opnsense-dashboard-backend
+    environment:
+      - OPNSENSE_HOST=${OPNSENSE_HOST}
+      - OPNSENSE_API_KEY=${OPNSENSE_API_KEY}
+      - OPNSENSE_API_SECRET=${OPNSENSE_API_SECRET}
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 256M
+    networks:
+      - opnsense-net
+      - tailscale-net
+      - traefik_traefik-network
+
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: opnsense-tailscale
+    hostname: vps-opnsense-dashboard
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_USERSPACE=false
+    volumes:
+      - tailscale-data:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+    networks:
+      - tailscale-net
+      - traefik_traefik-network
+
+networks:
+  opnsense-net:
+    driver: bridge
+  tailscale-net:
+    driver: bridge
+  traefik_traefik-network:
+    external: true
+
+volumes:
+  tailscale-data:

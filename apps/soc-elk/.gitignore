@@ -1,0 +1,4 @@
+elasticsearch/data/
+geoip/
+logstash/data/
+*.log

@@ -1,0 +1,58 @@
+# Authelia Configuration Template
+# ================================
+# This file is NOT committed to Git.
+# Copy this file to configuration.yml and fill in your secrets.
+# All secrets should be generated fresh: openssl rand -base64 32
+
+server:
+  address: "tcp://0.0.0.0:9091/"
+
+log:
+  level: info
+
+theme: auto
+
+identity_validation:
+  reset_password:
+    jwt_secret: CHANGE_ME_GENERATE_WITH_openssl_rand_base64_32
+
+totp:
+  issuer: townhouseagent.org
+
+authentication_backend:
+  file:
+    path: /config/users_database.yml
+    password:
+      algorithm: argon2id
+      iterations: 1
+      salt_length: 16
+      parallelism: 8
+      memory: 64
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain: "*.townhouseagent.org"
+      policy: one_factor
+      subject:
+        - "group:admins"
+
+session:
+  secret: CHANGE_ME_GENERATE_WITH_openssl_rand_base64_32
+  cookies:
+    - domain: townhouseagent.org
+      authelia_url: https://auth.townhouseagent.org
+
+regulation:
+  max_retries: 3
+  find_time: 120
+  ban_time: 300
+
+storage:
+  encryption_key: CHANGE_ME_GENERATE_WITH_openssl_rand_base64_32
+  local:
+    path: /config/db.sqlite3
+
+notifier:
+  filesystem:
+    filename: /config/notification.txt

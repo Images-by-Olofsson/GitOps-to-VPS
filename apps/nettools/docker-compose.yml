@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  nettools:
+    image: lissy93/networking-toolbox:latest
+    container_name: nettools
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - traefik_traefik-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nettools.rule=Host(`nettools.townhouseagent.org`)"
+      - "traefik.http.routers.nettools.entrypoints=websecure"
+      - "traefik.http.routers.nettools.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.nettools.middlewares=authelia@docker,cloudflare-headers@file"
+      - "traefik.http.services.nettools.loadbalancer.server.port=3000"
+
+networks:
+  traefik_traefik-network:
+    external: true

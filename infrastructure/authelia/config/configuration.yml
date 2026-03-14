@@ -1,0 +1,107 @@
+server:
+  address: "tcp://0.0.0.0:9091/"
+  headers:
+    csp_template: |
+      frame-ancestors 'self' https://*.townhouseagent.org https://townhouseagent.org;
+
+log:
+  level: info
+
+theme: auto
+
+identity_validation:
+  reset_password:
+    jwt_secret: hDV6uCslxsR4NVu1PQ3DYmP+tLFnjtFjSgBIfWmWx3w=
+
+totp:
+  issuer: townhouseagent.org
+
+authentication_backend:
+  file:
+    path: /config/users_database.yml
+    password:
+      algorithm: argon2id
+      iterations: 1
+      salt_length: 16
+      parallelism: 8
+      memory: 64
+
+access_control:
+  default_policy: deny
+  
+  rules:
+    # Allow public access to Twitch stats files for Grafana embedding
+    - domain: twitch-logs.townhouseagent.org
+      policy: bypass
+      methods:
+        - GET
+        - OPTIONS
+      resources:
+        - "^/stats\\.json$"
+        - "^/stats\\.html$"
+        - "^/points_base\\.json$"
+
+    # Allow public access to Nettools API
+    - domain: nettools.townhouseagent.org
+      policy: bypass
+      methods:
+        - GET
+        - POST
+        - OPTIONS
+      resources:
+        - "^/api(/.*)?$"
+
+    # Allow public access to Web-Check API
+    - domain: webcheck.townhouseagent.org
+      policy: bypass
+      methods:
+        - GET
+        - POST
+        - OPTIONS
+      resources:
+        - "^/api(/.*)?$"
+
+    # Admin has access to everything
+    - domain: "*.townhouseagent.org"
+      policy: one_factor
+      subject:
+        - "group:admins"
+    
+    # Twitch user only accesses twitch
+    - domain: twitch.townhouseagent.org
+      policy: one_factor
+      subject:
+        - "user:twitchuser"
+    
+    # Web-Check user only accesses webcheck
+    - domain: webcheck.townhouseagent.org
+      policy: one_factor
+      subject:
+        - "user:webcheckuser"
+
+    # NetTools user only accesses nettools
+    - domain: nettools.townhouseagent.org
+      policy: one_factor
+      subject:
+        - "user:nettoolsuser"
+
+session:
+  secret: hDV6uCslxsR4NVu1PQ3DYmP+tLFnjtFjSgBIfWmWx3w=
+  cookies:
+    - domain: townhouseagent.org
+      authelia_url: https://auth.townhouseagent.org
+      default_redirection_url: https://dash.townhouseagent.org
+
+regulation:
+  max_retries: 3
+  find_time: 120
+  ban_time: 300
+
+storage:
+  encryption_key: hDV6uCslxsR4NVu1PQ3DYmP+tLFnjtFjSgBIfWmWx3w=
+  local:
+    path: /config/db.sqlite3
+
+notifier:
+  filesystem:
+    filename: /config/notification.txt

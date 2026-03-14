@@ -1,0 +1,17 @@
+http:
+  middlewares:
+    cloudflare-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+
+    cors-public:
+      headers:
+        accessControlAllowOriginList:
+          - "*"
+        accessControlAllowMethods:
+          - "GET"
+          - "OPTIONS"
+        accessControlAllowHeaders:
+          - "Content-Type"
+        accessControlMaxAge: 86400

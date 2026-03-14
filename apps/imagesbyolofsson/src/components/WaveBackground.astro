@@ -1,0 +1,75 @@
+---
+// src/components/WaveBackground.astro
+const { opacity = "opacity-30", theme = "cyan" } = Astro.props;
+
+// Definiera färger baserat på tema
+// Cyan = Originalet (Startsidan bas)
+// Purple = Contact-sidan (Matchar boxen)
+const mainColor = theme === 'purple' ? '#c026d3' : '#4fd1c5'; // Purple-600 vs Teal-400
+const secondaryColor = theme === 'purple' ? '#db2777' : '#22d3ee'; // Pink-600 vs Cyan-400
+---
+
+<div class={`fixed inset-0 w-full h-full pointer-events-none -z-10 bg-neutral-900 ${opacity}`}>
+    <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="gradMain" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style={`stop-color:${mainColor};stop-opacity:0`} />
+                <stop offset="50%" style={`stop-color:${mainColor};stop-opacity:0.5`} />
+                <stop offset="100%" style={`stop-color:${mainColor};stop-opacity:0`} />
+            </linearGradient>
+
+            <linearGradient id="gradSec" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style={`stop-color:${secondaryColor};stop-opacity:0`} />
+                <stop offset="30%" style={`stop-color:${secondaryColor};stop-opacity:0.3`} />
+                <stop offset="100%" style={`stop-color:${secondaryColor};stop-opacity:0`} />
+            </linearGradient>
+        </defs>
+        
+        <g id="wave-group">
+            <path id="wave1" d="M-1000 300 Q 250 100 800 300 T 2600 300" fill="none" stroke="url(#gradMain)" stroke-width="1" />
+            <path id="wave2" d="M-1000 500 Q 250 700 800 500 T 2600 500" fill="none" stroke="url(#gradMain)" stroke-width="1.5" />
+            <path id="wave3" d="M-1000 700 Q 250 500 800 700 T 2600 700" fill="none" stroke="url(#gradMain)" stroke-width="0.5" />
+
+            <path id="thread1" d="M-1000 200 Q 400 400 900 200 T 2600 200" fill="none" stroke="url(#gradSec)" stroke-width="0.5" class="opacity-50" />
+            <path id="thread2" d="M-1000 800 Q 600 600 1100 800 T 2600 800" fill="none" stroke="url(#gradSec)" stroke-width="0.8" class="opacity-60" />
+        </g>
+    </svg>
+</div>
+
+<script>
+    const wave1 = document.getElementById('wave1');
+    const wave2 = document.getElementById('wave2');
+    const wave3 = document.getElementById('wave3');
+    const thread1 = document.getElementById('thread1');
+    const thread2 = document.getElementById('thread2');
+
+    // Olika hastigheter för parallax-effekt
+    const speeds = {
+        w1: 0.5,
+        w2: -0.8,
+        w3: 1.2,
+        t1: 1.8, // Snabbare "random" tråd
+        t2: -1.5 // Snabbare "random" tråd åt andra hållet
+    };
+
+    function onScroll() {
+        const scrollY = window.scrollY;
+
+        if(wave1) wave1.style.transform = `translateX(${scrollY * speeds.w1}px)`;
+        if(wave2) wave2.style.transform = `translateX(${scrollY * speeds.w2}px)`;
+        if(wave3) wave3.style.transform = `translateX(${scrollY * speeds.w3}px)`;
+        
+        // Random trådarna rör sig mer
+        if(thread1) thread1.style.transform = `translateX(${scrollY * speeds.t1}px)`;
+        if(thread2) thread2.style.transform = `translateX(${scrollY * speeds.t2}px)`;
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+</script>
+
+<style>
+    path {
+        transition: transform 0.1s linear;
+        will-change: transform;
+    }
+</style>

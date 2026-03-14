@@ -1,0 +1,25 @@
+version: "3.8"
+
+networks:
+  traefik_traefik-network:
+    external: true
+
+services:
+  web-check:
+    image: lissy93/web-check:latest
+    container_name: web-check
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - traefik_traefik-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.webcheck.rule=Host(`webcheck.townhouseagent.org`)"
+      - "traefik.http.routers.webcheck.entrypoints=websecure"
+      - "traefik.http.routers.webcheck.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.webcheck.middlewares=authelia@docker,cloudflare-headers@file"
+      - "traefik.http.services.webcheck.loadbalancer.server.port=3000"
