@@ -214,12 +214,17 @@ app.get('/api/wayback', async (req, res) => {
     const firstCapture = snapshots.length > 0 ? snapshots[snapshots.length - 1] : null;
     const lastCapture = snapshots.length > 0 ? snapshots[0] : null;
 
-    // Also get availability
-    const availResp = await fetch(
-      `https://archive.org/wayback/available?url=${encodeURIComponent(cleanUrl)}`,
-      { timeout: 10000 }
-    );
-    const availData = availResp.ok ? await availResp.json() : {};
+    // Also get availability (non-critical, don't fail if it errors)
+    let availData = {};
+    try {
+      const availResp = await fetch(
+        `https://archive.org/wayback/available?url=${encodeURIComponent(cleanUrl)}`,
+        { timeout: 10000 }
+      );
+      availData = availResp.ok ? await availResp.json() : {};
+    } catch (e) {
+      // Availability check is optional
+    }
 
     res.json({
       url: cleanUrl,
